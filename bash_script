@@ -1,0 +1,35 @@
+#!/bin/bash
+
+
+
+
+#this prints an error if the script isn't run as root
+if [ $EUID != 0 ]; then
+	echo "This program needs to run as sudo."
+	exit;
+fi
+
+
+#this gets the distro ID
+distro_long=$( cat /etc/*-release | grep '^ID=' )
+distro="${distro_long:3}"
+
+#only use the line below to make sure the script is working
+#echo "$distro"
+
+#this runs different code depending on distro
+if [ $distro == "manjaro" ]; then
+	sudo pacman -Syu
+
+
+elif [ $distro == "fedora" ]; then
+	sudo dnf update
+
+
+elif [ $distro == "ubuntu" ] || [ $distro == "debian" ] ; then
+	sudo apt-get update && sudo apt-get upgrade;
+
+
+
+fi
+
