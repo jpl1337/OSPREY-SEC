@@ -386,7 +386,8 @@ In the case you don't have a GUI, check if `nmcli` is installed with `which nmcl
 TODO
 
 #### ifconfig
-To see if your computer is recognized by the router, you can type `ifconfig`. You will see something like the below ```
+To see if your computer is recognized by the router, you can type `ifconfig`. You will see something like the below
+```
 [n01367640@osprey ~]$ ifconfig
 eth0      Link encap:Ethernet  HWaddr 00:50:56:96:54:94
           inet addr:139.62.234.6  Bcast:139.62.234.255  Mask:255.255.255.0
