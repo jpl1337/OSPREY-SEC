@@ -4,22 +4,22 @@
 - **[Linux Basics](#linux-basics)**
 	- [A note on GUIs](#a-note-on-guis)
 	- [A note on scripts](#a-note-on-scripts)
-	- [sudo](#sudo)
+	- [Sudo](#sudo)
 	- [Basic navigation commands](#basic-navigation-commands)
-		- The shell
+		- [The shell](#the-shell)
 		- [ls](#ls)
 		- [cd](#cd)
 		- [mv](#mv)
 		- [cp](#cp)
 		- [rm](#rm)
 	- [Linux folder structure](#linux-folder-structure)
-		- /
-		- /bin
-		- /boot
-		- /etc
-		- /home
-		- /tmp
-		- /var
+		- [/](#/)
+		- [/bin](#/bin)
+		- [/boot](#/boot)
+		- [/etc](#/etc)
+		- [/home](#/home)
+		- [/tmp](#/tmp)
+		- [/var](#/var)
 	- [Editing text files](#editing-text-files)
 	- [Man pages](#man-pages)
 	- [Useful commands](#useful-commands)
@@ -28,6 +28,8 @@
 		- [tail](#tail)
 		- [grep](#grep)
 		- [alias](#alias)
+- **[Backups]**
+	-
 - **[Package Management](#package-management)**
 	- [Searching](#searching)
 	- [Updating](#updating)
@@ -37,36 +39,36 @@
 	- [Tarballs](#tarballs)
 - **[Network Management](#network-management)**
 	- [Connecting](#connecting)
-		- GUI
-		- nmcli
-		- other
+		- [GUI](#gui)
+		- [nmcli](#nmcli)
+		- [other](#other)
 	- [ifconfig](#ifconfig)
 	- [ping](#ping)
 - **[Managing Services](#managing-services)**
+	- [Configuring Services](#configuring-services)
 	- [Monitoring Services](#monitoring-services)
 	- [Restarting Services](#restarting-services)
 	- [Stopping Services](#stopping-services)
 - **[Basic Hardening](#basic-hardening)**
-	- [Antivirus](#antivirus)
+	- [Reducing attack surface](#reducing-attack-surface)
+	- [Auditing](#auditing)
+	- [Fail2Ban](#fail2ban)
 	- [Firewall](#firewall)
 	- [IDS](#ids)
 	- [SSH](#ssh)
 	- [sysctl](#sysctl)
 	- [umask](#umask)
-- **[Monitoring](#monitoring)**
-	- [Checking for listening services](#checking-for-listening-services)
-	- [Checking logs](#checking-logs)
-	- [Who](#who)
 - **[So you got hacked](#so-you-got-hacked)**
+	- [Who](#who)
 	- [Kicking the hacker](#kicking-the-hacker)
 		- [Finding the hacker\'s tty](#finding-the-hackers-tty)
 		- [Killing the tty process](#killing-the-tty-process)
-	- [Changing passwords](#changing-passwords)
-	- [Finding out what happened](#finding-out-what-happened)
-		- [Checking history](#checking-history)
 	- [Removing persistence](#removing-persistence)
+		- [Changing passwords](#changing-passwords)
 		- [Removing new user accounts](#removing-new-user-accounts)
 		- [Removing ssh keys](#removing-ssh-keys)
+	- [Finding out what happened](#finding-out-what-happened)
+		- [Checking history](#checking-history)
 	- [If worse comes to worst](#if-worse-comes-to-worst)
 		- [Pulling the plug](#pulling-the-plug)
 		- [Restarting](#restarting)
@@ -295,6 +297,10 @@ alias grep=grep -iP --color
 ```
 Keep in mind aliases only last until you log out. If you want them to persist, you will need to add the commands exactly as shown above to the end of a file called `~/.bashrc`
 
+## Backups
+
+You should keep backups of the following files.
+
 #### Package Management
 If you come from a Windows environment, you most likely install software by downloading an executable from some dodgy website and hoping it doesn't have malware in it.
 Software on Linux is managed a little differently. Each distribution has its own "package manager", which is the way you install software. This way, you're sure of getting software that you don't have to search for and don't have to pray won't install BonziBuddy on the side. Some of these package managers are listed below:
@@ -363,8 +369,8 @@ Normally using a GUI makes things slower, but this is one of the times a GUI can
 	2. Netmask - This corresponds to your machine's "subnet". This is almost always `255.255.255.0`
 	3. Gateway - This is your network's router. In our case it is the Palo Alto which has the IP `172.20.242.150`.
 5. Without DHCP you will also have to specify a DNS to be able to resolve hostnames like "google.com". Put `172.20.242.10 172.20.242.150`.
-	* 172.20.242.10  - The lab DNS.
-	* 172.20.242.150 - The router's DNS.
+	* `172.20.242.10`  - The lab DNS.
+	* `172.20.242.150` - The router's DNS.
 	* In the competition you will also specify the Windows 2008 DNS.
 6. Use the upper-right to disconnect/reconnect.
 
@@ -372,7 +378,7 @@ Normally using a GUI makes things slower, but this is one of the times a GUI can
 In the case you don't have a GUI, check if `nmcli` is installed with `which nmcli`. If you have it installed, follow the below steps.
 1. To see your devices, use `nmcli dev status`. Look for an entry called something close to `eno1` or `eth0` that has the tag `ethernet`.
 2. Run this command to create a connection: `sudo nmcli con add con-name "MYCONNECTION" ifname DEVICE" type ethernet ip4 XX.XX.XX.XX/24 gw4 172.20.242.150`
-	* `nmcli con add con-name "MYCONNECTION` - Create a new connection with the name "MYCONNECTION"
+	* `nmcli con add con-name "MYCONNECTION"` - Create a new connection with the name "MYCONNECTION"
 	* `ifname DEVICE` - Use the interface we found in the previous step.
 	* `type ethernet` - Register this as an ethernet connection in contrast to a wireless one.
 	* `ip4 XX.XX.XX.XX/24` - Set a static IPV4 address of XX.XX.XX.XX with a 255.255.255.0 subnet.
@@ -453,6 +459,9 @@ If this ping fails but the previous succeeds, it's likely that DNS is fukt or yo
 
 ### Managing Services
 
+#### Configuring Services
+How to configure a service is quite specific to a given service. However, it is most likely done by editing a config file in `/etc` or `/var`. Knowing how to configure your service is a must for CCDC.
+
 #### Monitoring Services
 You're going to be managing some kind of service. You better make sure it's up.
 First you can check for listening services with
@@ -460,11 +469,228 @@ First you can check for listening services with
 netstat -plunt
 ```
 If there are any services listed that aren't critical for running your operation, remove them using the appropriate package manager.
-If the service you're maintaining is listed, find out what's wrong with:```
-systemctl status mysql
+If the service you're maintaining is listed, find out what's wrong with:
+```
+systemctl status mysqld
 ```
 If you don't have systemctl, you can alternatively check it with
 ```
-service mysql status
+service mysqld status
+```
+If neither of those work, you'll have to look up the location of your service's logs and check them yourself. Some examples are below:
+* General - `/var/log/messages` or `/var/log/syslog`
+* BIND9   - `/var/log/syslog`
+* MySQL   - `/var/log/mysqld.log`
+* Mail    - `/var/log/maillog`
+
+#### Restarting Services
+When you edit your service's configuration file, you usually have to restart it for your changes to take effect. This can be done with:
+```
+systemctl restart mysqld
+```
+Or
+```
+service mysqld status
+```
+If neither of those work, you'll have to look up something specific for your service.
+
+#### Stopping Services
+You might have to stop a service if it is under attack and you need to get things under control. In that case:
+```
+systemctl stop mysqld
+```
+Or
+```
+service mysqld stop
 ```
 
+### Basic Hardening
+
+#### Auditing
+You could audit by hand if you had more then 30 minutes to set things up. Fortunately, there are several tools to automatically scan your system for common vulnerabilities. One of my favorites is `lynis`, but others like `chkrootkit` exist as well.
+To audit your system using `lynis`, install it through your given package manager, and then
+```
+sudo lynis -c
+```
+It will automatically scan your system for common vulnerabilities and tell you how to patch them.
+
+#### Firewall
+The Palo Alto will get hacked eventually. When that happens, you want to keep your attack surface down as much as possible, especially with the vulnerable kernel you will be using. I highly recommend the firewall `ufw`, as it is both easy to set up and installed by default on most Linux systems.
+
+Make sure you are familliar with the port(s) your service(s) require.
+
+First, set the default to deny both incoming and outgoing requests:
+```
+sudo ufw default deny outgoing
+sudo ufw default deny incoming
+```
+
+Then, enable the firewall:
+```
+sudo ufw enable
+```
+
+If you need to disable the firewall, use:
+```
+sudo ufw disable
+```
+
+To allow a port incoming:
+```
+sudo ufw allow 22
+```
+
+To allow a port incoming only for tcp:
+```
+sudo ufw allow 22/tcp
+```
+
+To allow a port incoming only from a specific subnet:
+```
+sudo ufw allow from 172.20.242.0/24 to any port 22
+```
+
+To allow a port outgoing:
+```
+sudo ufw allow out 22
+```
+
+To allow a port outgoing only to a specific subnet:
+```
+sudo ufw allow from any to 172.20.242.0/24 port 22
+```
+
+To deny all connections from a subnet (keep in mind this probably won't be allowed at CCDC):
+```
+sudo ufw deny from 180.0.0.0/24
+```
+
+To check the list of rules (ufw must be active):
+```
+ufw status numbered
+```
+
+To then delete a rule:
+```
+sudo ufw delete 2  #2 is the number of the rule
+```
+
+To rate limit a port (up to 6 connections per 30 seconds):
+```
+sudo ufw limit 22/tcp
+```
+
+#### Fail2Ban
+Fail2Ban is an IPS (i.e. Intrusion Prevention System) that detects brute forcing attempts and bans IP's that try to do so.
+1. [Install](#installing) `fail2ban` using your favorite package manager and [enable the service](#restarting-services)
+2. The default configuration *should* automatically start
+
+#### IDS
+An IDS, or Intrusion Detection System, tracks your system for signs of an intrusion. Note that it does not prevent intrusions nor does it help you fight of intruders. Two popular Linux based IDS's are `tiger` and `OSSEC`.
+
+*todo: finish this section*
+
+#### SSH
+SSH (i.e. Secure Shell) is a way of logging into a system remotely. This is convenient for system administrators who do not have physical access to a machine. This is also convenient for hackers who can destroy everything if they get in. Here are some guidelines for securing it:
+
+1. Open up the `sshd` configuration file at `/etc/ssh/sshd_config` with your favorite text editor.
+2. First and foremost, deny root login by finding the commented line saying `# PermitRootLogin ues` and change it to say `# PermitRootLogin no`
+*todo: ssh key*
+
+#### sysctl
+`sysctl` (not to be confused with `systemctl`) is a daemon that controls kernel parameters are runtime. These settings are essential for preventing your service from buckling under many kinds of denial of service attacks.
+
+To prevent the common "SYN Flood" attack:
+```
+sudo sysctl -w net.ipv4.tcp_syncookies=1
+```
+
+To validate IP addresses (helps with spoofing):
+```
+sudo sysctl -w net.ipv4.conf.default.rp_filter=1
+sudo sysctl -w net.ipv4.conf.all.rp_filter=1
+```
+
+To log "martian" packets (packets with an invalid destination):
+```
+sudo sysctl -w net.ipv4.conf.default.log_martians=1
+sudo sysctl -w net.ipv4.conf.all.log_martians=1
+```
+
+To disable redirects through your box:
+```
+sudo sysctl -w net.ipv4.conf.all.accept_redirects=0
+sudo sysctl -w net.ipv4.conf.default.accept_redirects=0
+sudo sysctl -w net.ipv4.conf.all.secure_redirects=0
+sudo sysctl -w net.ipv4.conf.default.secure_redirects=0
+sudo sysctl -w net.ipv6.conf.all.accept_redirects=0
+sudo sysctl -w net.ipv6.conf.default.accept_redirects=0
+sudo sysctl -w net.ipv4.conf.all.send_redirects=0
+sudo sysctl -w net.ipv4.conf.default.send_redirects=0
+```
+
+#### umask
+Umask sets the permissions an application *cannot* create by default. The default value of `022` is too insecure, so change it with
+```
+umask 177
+```
+
+### So you got hacked
+
+#### Who
+*How do I know if my box has been breached?* Outside of your IDS, it's always nice to run the `who` command regularly, which should produce an output like:
+```
+[user@my-box ~]$ who
+user tty1         2019-02-11 10:26
+```
+This shows the user logged in, the service (or tty) they're on, and the time they log in. **If there is more than one entry here, someone else is logged in to your system.**
+
+#### Kicking the hacker
+So this shows up on your `who`:
+```
+[user@my-box ~]$ who
+user tty1         2019-02-11 10:26
+user pts/3        2019-02-11 13:24 (62.62.62.62)
+```
+You've been hacked. Now your top priority is getting the hacker off your system.
+
+1. See the second column next to the user name that reads `tty1` and `pts/3`? This refers to the `tty` the user is logged into. The second entry with the IP next to it is the one the hacker is using.
+2. Find out the process associated with this tty with
+```
+[user@my-box ~]$ ps --tty pts/3
+  PID TTY          TIME CMD
+16210 pts/3    00:00:00 zsh
+```
+3. See the column all the way on the left that reads `16210` under `PID`? This is the PID of the process. Kill it below with:
+```
+sudo kill -9 16210
+```
+The `-9` specifies that we want to use the `SIGKILL` signal, which cannot be handled by applications.
+
+#### Removing persistence
+Any decent hacker will have put a way to log back in once they are kicked. This is how you remove that.
+
+##### Changing passwords
+The very first thing you do is change your passwords for all accounts on the system. For example, to change the password for the `root` user:
+```
+sudo passwd root
+```
+You will not be asked for the old password. You just have to put in the new password twice. If time is of the essence and you need to edit multiple passwords, you can skip the verification process with
+```
+echo -e "hunter2\nhunter2" | sudo passwd root
+```
+
+##### Removing new user accounts
+If the hacker got access to a root account, he most likely will have created a new user. You can list the users with
+```
+cat /etc/passwd
+```
+Keep in mind there will be a lot of users here. *Make sure you know how this should look by default*.
+To remove a user:
+```
+sudo userdel redteamuser
+```
+
+##### Removing ssh keys.
+
+#### Finding out what happened
