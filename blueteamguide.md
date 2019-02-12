@@ -28,8 +28,6 @@
 		- [tail](#tail)
 		- [grep](#grep)
 		- [alias](#alias)
-- **[Backups]**
-	-
 - **[Package Management](#package-management)**
 	- [Searching](#searching)
 	- [Updating](#updating)
@@ -70,8 +68,8 @@
 	- [Finding out what happened](#finding-out-what-happened)
 		- [Checking history](#checking-history)
 	- [If worse comes to worst](#if-worse-comes-to-worst)
-		- [Pulling the plug](#pulling-the-plug)
 		- [Restarting](#restarting)
+		- [Pulling the plug](#pulling-the-plug)
 
 ## Linux Basics
 
@@ -665,7 +663,7 @@ You've been hacked. Now your top priority is getting the hacker off your system.
 ```
 sudo kill -9 16210
 ```
-The `-9` specifies that we want to use the `SIGKILL` signal, which cannot be handled by applications.
+The `-9` specifies that we want to use the `SIGKILL` signal, which cannot be ignored.
 
 #### Removing persistence
 Any decent hacker will have put a way to log back in once they are kicked. This is how you remove that.
@@ -679,9 +677,14 @@ You will not be asked for the old password. You just have to put in the new pass
 ```
 echo -e "hunter2\nhunter2" | sudo passwd root
 ```
+Keep in mind that just like when you bust a nut to your anime waifu, it's a good idea to clear your history:
+```
+history -c
+```
+This way, any future attacker won't be able to discern your ~~ waifu ~~ password.
 
 ##### Removing new user accounts
-If the hacker got access to a root account, he most likely will have created a new user. You can list the users with
+If the hacker got access to a root account, they most likely will have created a new user. You can list the users with
 ```
 cat /etc/passwd
 ```
@@ -692,5 +695,31 @@ sudo userdel redteamuser
 ```
 
 ##### Removing ssh keys.
+A smart hacker will upload an ssh key to your box so they can continue to log in. If you do not use ssh keys, issue the following command
+```
+sudo rm /home/*/.ssh/authorized_keys
+```
+to remove any ssh keys on the computer.
+
+If you do use ssh keys, issue the above command and then restore your old `~/.ssh/authorized_keys` file.
 
 #### Finding out what happened
+
+##### Checking history
+To see the history of commands run on an account, just type in
+```
+history user
+```
+You may want to pipe it to less or tail to see only the commands the hacker executed.
+
+#### If worse comes to worst
+
+##### Restarting
+You have the option of restarting your box with
+```
+sudo restart
+```
+In some CCDC competitions this will revert your box to how it was originally. Keep in mind attackers will still be trying to attack it.
+
+##### Pulling the plug
+Just like your kids, when things are fukt, you pull the plug. This will stop the bleeding and give you time to cool down and patch security holes. Revisit [Stopping Services](#stopping-services).
