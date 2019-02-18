@@ -717,7 +717,7 @@ If your system has `cron` installed, most likely the hacker will have put in a c
 ```
 First, remove any suspicious cron entries with:
 ```
-sudo crontab -e
+sudo crontab -r [username]
 ```
 Then, it's a good idea to deny non-root users from making cron jobs by adding
 ```
